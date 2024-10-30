@@ -14,26 +14,22 @@ jobs:
           --network-alias localstack
         env:
           SERVICES: "lambda,s3,sts"
+          DEFAULT_REGION: "ap-southeast-1"
 
     steps:
       - name: Wait for LocalStack to be ready
         run: |
-          for i in {1..20}; do
+          for i in {1..30}; do
             curl -s http://localstack:4566/health | grep '"running": true' && break || echo "Waiting for LocalStack to start..." && sleep 2
           done
 
-      - name: Check LocalStack Connectivity
-        run: |
-          curl -s http://localstack:4566/ || echo "Could not connect to LocalStack!"
-
-      - name: Debug Network Interfaces
-        run: |
-          ip a
-          curl -s http://localstack:4566/
-
       - name: Get Caller Identity (LocalStack)
         env:
-          AWS_ACCESS_KEY_ID: "test"        # Dummy access key
-          AWS_SECRET_ACCESS_KEY: "test"      # Dummy secret key
+          AWS_ACCESS_KEY_ID: "test"
+          AWS_SECRET_ACCESS_KEY: "test"
         run: |
-          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 sts get-caller-identity
+          localstack_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' localstack)
+          echo "LocalStack IP: $localstack_ip"
+          for i in {1..5}; do
+            aws --endpoint-url=http://$localstack_ip:4566 --region ap-southeast-1 sts get-caller-identity && break || (echo "Retrying..." && sleep 2)
+          done
