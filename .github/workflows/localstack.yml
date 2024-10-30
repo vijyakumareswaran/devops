@@ -1,0 +1,47 @@
+name: LocalStack CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack:2.2.0  # Use the same tag as in your Makefile
+        ports:
+          - "4566:4566"
+          - "4510-4559:4510-4559"
+        options: >-
+          --env SERVICES=s3,sqs,lambda  # Add other services as needed
+          --env DEFAULT_REGION=ap-southeast-1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Terraform Docker Image
+        run: |
+          docker build --tag local/terraform:1.5 -f ./Dockerfile .
+
+      - name: Wait for LocalStack to start
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:4566/health | grep '"running": true'; then
+              echo "LocalStack is running"
+              break
+            fi
+            echo "Waiting for LocalStack to start..."
+            sleep 2
+          done
+
+      - name: Create S3 Bucket
+        run: |
+          aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket
+
+      - name: List S3 Buckets
+        run: |
+          aws --endpoint-url=http://localhost:4566 s3 ls
