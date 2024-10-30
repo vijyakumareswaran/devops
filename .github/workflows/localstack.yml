@@ -16,6 +16,14 @@ jobs:
           --env SERVICES=s3,sqs,lambda
           --env DEFAULT_REGION=ap-southeast-1
 
+    env:
+      AWS_ACCESS_KEY_ID: "access_key"               # Placeholder credentials for LocalStack
+      AWS_SECRET_ACCESS_KEY: "secret_key"
+      AWS_DEFAULT_REGION: "ap-southeast-1"          # Match LocalStack region setting
+      LOCALSTACK_HOSTNAME: "http://localhost:4566"  # Endpoint for LocalStack
+      CLI_READ_TIMEOUT: "0"                         # Disable IMDS timeouts
+      CLI_CONNECT_TIMEOUT: "0"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,11 +51,11 @@ jobs:
 
       - name: Create S3 Bucket
         run: |
-          aws --endpoint-url=http://localhost:4566 --region ap-southeast-1 s3 mb s3://test-bucket --debug || echo "Failed to create bucket"
+          aws --endpoint-url=$LOCALSTACK_HOSTNAME --region $AWS_DEFAULT_REGION s3 mb s3://test-bucket --debug || echo "Failed to create bucket"
 
       - name: Show LocalStack Logs
         run: docker logs localstack
 
       - name: List S3 Buckets
         run: |
-          aws --endpoint-url=http://localhost:4566 s3 ls
+          aws --endpoint-url=$LOCALSTACK_HOSTNAME s3 ls
