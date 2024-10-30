@@ -16,21 +16,24 @@ jobs:
           SERVICES: "lambda,s3,sts"
 
     steps:
-      - name: Check LocalStack Health
+      - name: Wait for LocalStack to be ready
         run: |
           for i in {1..10}; do
-            if curl -s http://localstack:4566/health | grep '"running": true'; then
-              echo "LocalStack is running."
-              break
-            else
-              echo "Waiting for LocalStack to start..."
-              sleep 2
-            fi
+            curl -s http://localstack:4566/health | grep '"running": true' && break || echo "Waiting for LocalStack to start..." && sleep 2
           done
+
+      - name: Check LocalStack Connectivity
+        run: |
+          curl -s http://localstack:4566/ || echo "Could not connect to LocalStack!"
+
+      - name: Debug Network Interfaces
+        run: |
+          ip a
+          curl -s http://localstack:4566/
 
       - name: Get Caller Identity (LocalStack)
         env:
-          AWS_ACCESS_KEY_ID: "test"       # Dummy access key
-          AWS_SECRET_ACCESS_KEY: "test"     # Dummy secret key
+          AWS_ACCESS_KEY_ID: "test"        # Dummy access key
+          AWS_SECRET_ACCESS_KEY: "test"      # Dummy secret key
         run: |
           aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 sts get-caller-identity
