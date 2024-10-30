@@ -80,7 +80,7 @@ jobs:
       - name: Wait for LocalStack to be ready
         run: |
           echo "Waiting for LocalStack to be ready for Terraform commands..."
-          for i in {1..10}; do
+          for i in {1..5}; do
             if curl -s http://localstack:4566/health | grep '"lambda": "available"'; then
               echo "LocalStack is ready"
               break
