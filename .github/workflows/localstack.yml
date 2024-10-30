@@ -13,7 +13,7 @@ jobs:
           - "4566:4566"
           - "4510-4559:4510-4559"
         options: >-
-          --env SERVICES=s3,sqs,lambda  # Specify the services you want to run
+          --env SERVICES=s3,sqs,lambda
           --env DEFAULT_REGION=ap-southeast-1
 
     steps:
