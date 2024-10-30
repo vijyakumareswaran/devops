@@ -24,11 +24,6 @@ resource "aws_iam_role" "this" {
       }
     ]
   })
-
-  inline_policy {
-    name   = "policy"
-    policy = data.aws_iam_policy_document.this.json
-  }
 }
 
 data "aws_iam_policy_document" "this" {
@@ -52,27 +47,25 @@ data "aws_iam_policy_document" "this" {
   }
 }
 
-# Lambda function configuration
-# Lambda function configuration
+resource "aws_iam_role_policy" "this" {
+  name   = "${local.function_name}-lambda-policy"
+  role   = aws_iam_role.this.id
+
+  policy = data.aws_iam_policy_document.this.json
+}
+
 resource "aws_lambda_function" "this" {
   function_name     = local.function_name
   role              = aws_iam_role.this.arn
-  handler           = "handler.hello"  # This matches the exported function in handler.js
-  runtime           = "nodejs18.x"      # Updated to a suitable version
+  handler           = "handler.hello"
+  runtime           = "nodejs18.x"
   filename          = data.archive_file.this.output_path
   source_code_hash  = data.archive_file.this.output_base64sha256
 
   environment {
     # Set any environment variables your function may need here
-    # For example: VARIABLE_NAME = "value"
   }
 
-  memory_size = 128           # Adjust based on the needs of your function
-  timeout     = 30            # Adjust based on the needs of your function
-
-  # Optional: Add VPC configuration if your Lambda needs access to resources in a VPC
-  # vpc_config {
-  #   subnet_ids         = [...]
-  #   security_group_ids = [...]
-  # }
+  memory_size = 128
+  timeout     = 30
 }

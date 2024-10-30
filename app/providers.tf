@@ -16,6 +16,7 @@ provider "aws" {
   skip_requesting_account_id   = true           # Skip requesting account ID
   endpoints {
     lambda = "http://localhost:4566"           # LocalStack endpoint for Lambda
+    iam    = "http://localhost:4566"           # LocalStack endpoint for IAM
     # Add other services here as needed
   }
 }
