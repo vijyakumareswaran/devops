@@ -23,12 +23,19 @@ jobs:
             curl -s http://localstack:4566/health | grep '"running": true' && break || echo "Waiting for LocalStack to start..." && sleep 2
           done
 
+      - name: Get LocalStack IP Address
+        id: get_localstack_ip
+        run: |
+          for i in {1..10}; do
+            localstack_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' localstack) && echo "::set-output name=ip::$localstack_ip" && break || (echo "LocalStack not ready, retrying..." && sleep 2)
+          done
+
       - name: Get Caller Identity (LocalStack)
         env:
           AWS_ACCESS_KEY_ID: "test"
           AWS_SECRET_ACCESS_KEY: "test"
         run: |
-          localstack_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' localstack)
+          localstack_ip=${{ steps.get_localstack_ip.outputs.ip }}
           echo "LocalStack IP: $localstack_ip"
           for i in {1..5}; do
             aws --endpoint-url=http://$localstack_ip:4566 --region ap-southeast-1 sts get-caller-identity && break || (echo "Retrying..." && sleep 2)
