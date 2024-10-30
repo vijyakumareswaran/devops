@@ -86,4 +86,24 @@ jobs:
         run: |
           cd app  # Ensure we are in the correct directory
           echo "Updating lambda.tf to create/update lambda resources..."
-         
+          terraform plan
+          terraform apply --auto-approve
+
+      - name: List Updated Lambda Functions
+        run: |
+          cd app  # Ensure we are in the correct directory
+          echo "Listing updated Lambda functions..."
+          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions
+
+      - name: Invoke Lambda Function
+        run: |
+          cd app  # Ensure we are in the correct directory
+          echo "Invoking the Lambda function..."
+          response=$(aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda invoke --function-name helloworld-localstack output.json)
+          cat output.json
+
+      - name: Clean Up
+        run: |
+          cd app  # Ensure we are in the correct directory
+          echo "Cleaning up..."
+          terraform destroy --auto-approve
