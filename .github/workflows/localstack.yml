@@ -26,7 +26,7 @@ jobs:
       - name: Wait for LocalStack to start
         run: |
           echo "Waiting for LocalStack to start..."
-          for i in {1..30}; do
+          for i in {1..60}; do  # Increased wait attempts
             if curl -s http://localhost:4566/health | grep '"lambda": "available"'; then
               echo "LocalStack is running"
               break
@@ -73,7 +73,7 @@ jobs:
       - name: List Lambda Functions
         run: |
           echo "Listing Lambda functions..."
-          aws --endpoint-url=http://localhost:4566 --region ap-southeast-1 lambda list-functions
+          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions  # Use service name
 
       - name: Create or Update Lambda Function
         run: |
@@ -85,12 +85,12 @@ jobs:
       - name: List Updated Lambda Functions
         run: |
           echo "Listing updated Lambda functions..."
-          aws --endpoint-url=http://localhost:4566 --region ap-southeast-1 lambda list-functions
+          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions  # Use service name
 
       - name: Invoke Lambda Function
         run: |
           echo "Invoking the Lambda function..."
-          response=$(aws --endpoint-url=http://localhost:4566 --region ap-southeast-1 lambda invoke --function-name helloworld-localstack output.json)
+          response=$(aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda invoke --function-name helloworld-localstack output.json)
           cat output.json
 
       - name: Clean Up
