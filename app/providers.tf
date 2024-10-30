@@ -6,3 +6,7 @@ terraform {
     }
   }
 }
+
+provider "aws" {
+  region = var.aws_region  # Use a variable for the region
+}
