@@ -15,7 +15,9 @@ jobs:
         options: >-
           --env SERVICES=lambda
           --env DEFAULT_REGION=ap-southeast-1
-          --restart=always  # Ensure LocalStack restarts if it fails
+          --restart=always
+          --env GITHUB_ACTIONS=true
+          --env CI=true
 
     steps:
       - name: Checkout code
@@ -80,16 +82,13 @@ jobs:
               break
             fi
             echo "Still waiting for LocalStack to be ready..."
-            sleep 5  # Wait for 5 seconds before checking again
+            sleep 5
           done
 
       - name: Initialize Terraform
         run: |
           cd app  # Change directory to where your .tf files are located
           terraform init
-
-      - name: Check LocalStack Health
-        run: curl -s http://localhost:4566/health
 
       - name: Create or Update Lambda Function
         run: |
