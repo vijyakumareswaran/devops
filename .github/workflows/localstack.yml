@@ -59,12 +59,25 @@ jobs:
           sudo apt-get install -y awscli jq
           aws --version
 
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: YOUR_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: YOUR_AWS_SECRET_ACCESS_KEY
+        run: |
+          echo "AWS credentials configured."
+
       - name: Initialize Terraform
+        env:
+          AWS_ACCESS_KEY_ID: YOUR_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: YOUR_AWS_SECRET_ACCESS_KEY
         run: |
           cd app  # Change directory to where your .tf files are located
           terraform init
 
       - name: Create or Update Lambda Function
+        env:
+          AWS_ACCESS_KEY_ID: YOUR_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: YOUR_AWS_SECRET_ACCESS_KEY
         run: |
           cd app  # Ensure we are in the correct directory
           echo "Updating lambda.tf to create/update lambda resources..."
@@ -72,12 +85,18 @@ jobs:
           terraform apply --auto-approve
 
       - name: List Updated Lambda Functions
+        env:
+          AWS_ACCESS_KEY_ID: YOUR_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: YOUR_AWS_SECRET_ACCESS_KEY
         run: |
           cd app  # Ensure we are in the correct directory
           echo "Listing updated Lambda functions..."
           aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions
 
       - name: Invoke Lambda Function
+        env:
+          AWS_ACCESS_KEY_ID: YOUR_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: YOUR_AWS_SECRET_ACCESS_KEY
         run: |
           cd app  # Ensure we are in the correct directory
           echo "Invoking the Lambda function..."
@@ -85,6 +104,9 @@ jobs:
           cat output.json
 
       - name: Clean Up
+        env:
+          AWS_ACCESS_KEY_ID: YOUR_AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: YOUR_AWS_SECRET_ACCESS_KEY
         run: |
           cd app  # Ensure we are in the correct directory
           echo "Cleaning up..."
