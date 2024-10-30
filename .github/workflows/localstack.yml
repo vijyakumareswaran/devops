@@ -70,10 +70,6 @@ jobs:
         run: |
           cat ~/.aws/credentials
 
-      - name: Get Caller Identity (Real AWS)
-        run: |
-          aws sts get-caller-identity
-
       - name: Get Caller Identity (LocalStack)
         run: |
           aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 sts get-caller-identity
