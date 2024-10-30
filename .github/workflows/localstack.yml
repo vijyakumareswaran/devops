@@ -54,7 +54,9 @@ jobs:
           aws --endpoint-url=$LOCALSTACK_HOSTNAME --region $AWS_DEFAULT_REGION s3 mb s3://test-bucket --debug || echo "Failed to create bucket"
 
       - name: Show LocalStack Logs
-        run: docker logs localstack
+        run: |
+          sleep 5  # Optional: Add a short sleep to ensure everything is settled before checking logs
+          docker logs localstack || echo "Failed to retrieve logs"
 
       - name: List S3 Buckets
         run: |
