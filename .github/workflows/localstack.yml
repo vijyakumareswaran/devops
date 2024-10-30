@@ -15,6 +15,7 @@ jobs:
         options: >-
           --env SERVICES=lambda
           --env DEFAULT_REGION=ap-southeast-1
+          --restart=always  # Ensure LocalStack restarts if it fails
 
     steps:
       - name: Checkout code
@@ -69,6 +70,18 @@ jobs:
       - name: Display AWS Credentials
         run: |
           cat ~/.aws/credentials
+
+      - name: Wait for LocalStack to be ready
+        run: |
+          echo "Waiting for LocalStack to be ready for Terraform commands..."
+          for i in {1..30}; do
+            if curl -s http://localstack:4566/health | grep '"lambda": "available"'; then
+              echo "LocalStack is ready"
+              break
+            fi
+            echo "Still waiting for LocalStack to be ready..."
+            sleep 5  # Wait for 5 seconds before checking again
+          done
 
       - name: Initialize Terraform
         run: |
