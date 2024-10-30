@@ -92,6 +92,8 @@ jobs:
       - name: Initialize Terraform
         run: |
           cd app  # Change directory to where your .tf files are located
+          terraform state rm data.aws_caller_identity.this
+          terraform state rm data.aws_region.this
           terraform init
 
       - name: Create or Update Lambda Function
