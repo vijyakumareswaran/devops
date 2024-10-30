@@ -27,5 +27,8 @@ jobs:
           done
 
       - name: Get Caller Identity (LocalStack)
+        env:
+          AWS_ACCESS_KEY_ID: "test"       # Dummy access key
+          AWS_SECRET_ACCESS_KEY: "test"     # Dummy secret key
         run: |
           aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 sts get-caller-identity
