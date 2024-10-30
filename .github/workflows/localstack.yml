@@ -70,11 +70,6 @@ jobs:
           cd app  # Updated path to match your repo structure
           terraform init
 
-      - name: List Lambda Functions
-        run: |
-          echo "Listing Lambda functions..."
-          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions  # Use service name
-
       - name: Create or Update Lambda Function
         run: |
           echo "Updating lambda.tf to create/update lambda resources..."
