@@ -64,8 +64,14 @@ resource "aws_lambda_function" "this" {
 
   environment {
     # Set any environment variables your function may need here
+    VAR_NAME = "value"
   }
 
   memory_size = 128
   timeout     = 30
+
+  tags = {
+    Name        = local.function_name
+    Environment = "dev"
+  }
 }
