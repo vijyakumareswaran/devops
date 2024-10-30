@@ -26,7 +26,7 @@ jobs:
       - name: Wait for LocalStack to start
         run: |
           echo "Waiting for LocalStack to start..."
-          for i in {1..60}; do  # Increased wait attempts
+          for i in {1..30}; do
             if curl -s http://localhost:4566/health | grep '"lambda": "available"'; then
               echo "LocalStack is running"
               break
@@ -59,36 +59,33 @@ jobs:
           sudo apt-get install -y awscli jq
           aws --version
 
-      - name: Configure AWS CLI for LocalStack
-        run: |
-          aws configure set aws_access_key_id test
-          aws configure set aws_secret_access_key test
-          aws configure set default.region ap-southeast-1
-
       - name: Initialize Terraform
         run: |
-          cd app  # Updated path to match your repo structure
+          cd app  # Change directory to where your .tf files are located
           terraform init
 
       - name: Create or Update Lambda Function
         run: |
+          cd app  # Ensure we are in the correct directory
           echo "Updating lambda.tf to create/update lambda resources..."
-          # Make your updates to lambda.tf here if necessary
           terraform plan
           terraform apply --auto-approve
 
       - name: List Updated Lambda Functions
         run: |
+          cd app  # Ensure we are in the correct directory
           echo "Listing updated Lambda functions..."
-          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions  # Use service name
+          aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda list-functions
 
       - name: Invoke Lambda Function
         run: |
+          cd app  # Ensure we are in the correct directory
           echo "Invoking the Lambda function..."
           response=$(aws --endpoint-url=http://localstack:4566 --region ap-southeast-1 lambda invoke --function-name helloworld-localstack output.json)
           cat output.json
 
       - name: Clean Up
         run: |
+          cd app  # Ensure we are in the correct directory
           echo "Cleaning up..."
           terraform destroy --auto-approve
