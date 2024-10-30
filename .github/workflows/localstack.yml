@@ -29,8 +29,8 @@ jobs:
 
       - name: Wait for LocalStack to start
         run: |
-          for i in {1..60}; do
-            if curl -s http://localhost:4566/health | grep '"running": true'; then
+          for i in {1..30}; do  # Adjusted retries to 30
+            if curl -s http://localhost:4566/health | grep '"s3": "available"'; then
               echo "LocalStack is running"
               break
             fi
@@ -43,7 +43,10 @@ jobs:
 
       - name: Create S3 Bucket
         run: |
-          aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket || echo "Failed to create bucket"
+          aws --endpoint-url=http://localhost:4566 s3 mb s3://test-bucket --debug || echo "Failed to create bucket"
+
+      - name: Show LocalStack Logs
+        run: docker logs localstack
 
       - name: List S3 Buckets
         run: |
