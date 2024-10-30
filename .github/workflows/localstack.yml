@@ -68,6 +68,10 @@ jobs:
           echo "[default]" > ~/.aws/credentials
           echo "aws_access_key_id = test" >> ~/.aws/credentials
           echo "aws_secret_access_key = test" >> ~/.aws/credentials
+          echo "[my_profile_name]" >> ~/.aws/credentials
+          echo "aws_access_key_id = test" >> ~/.aws/credentials
+          echo "aws_secret_access_key = test" >> ~/.aws/credentials
+          echo "Profile set up for Terraform to use."
 
       - name: Display AWS Credentials
         run: |
@@ -76,7 +80,7 @@ jobs:
       - name: Wait for LocalStack to be ready
         run: |
           echo "Waiting for LocalStack to be ready for Terraform commands..."
-          for i in {1..10}; do
+          for i in {1..5}; do
             if curl -s http://localstack:4566/health | grep '"lambda": "available"'; then
               echo "LocalStack is ready"
               break
@@ -95,7 +99,7 @@ jobs:
           cd app  # Ensure we are in the correct directory
           echo "Updating lambda.tf to create/update lambda resources..."
           terraform plan
-          terraform apply --auto-approve
+          terraform apply --auto-approve -backend-config="profile=my_profile_name"  # Use the profile in backend config
 
       - name: List Updated Lambda Functions
         run: |
